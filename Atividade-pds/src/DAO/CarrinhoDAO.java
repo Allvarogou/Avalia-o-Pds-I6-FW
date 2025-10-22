@@ -77,12 +77,14 @@ public class CarrinhoDAO {
             
         } catch (SQLException e) {
             System.err.println("Erro na transação de compra. Desfazendo alterações: " + e.getMessage());
+            e.printStackTrace(); // Alteração: Adiciona o stack trace para depuração
             
             if (conn != null) {
                 try {
                     conn.rollback();
                 } catch (SQLException rollbackEx) {
                     System.err.println("Erro ao desfazer transação: " + rollbackEx.getMessage());
+                    rollbackEx.printStackTrace(); // Adiciona o stack trace para depuração
                 }
             }
             throw e;        } finally {

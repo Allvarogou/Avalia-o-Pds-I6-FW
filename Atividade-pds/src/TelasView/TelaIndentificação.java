@@ -89,10 +89,10 @@ public class TelaIndentificação extends JFrame {
 
         botaoEntrar.addActionListener(e -> {
             String nomeDigitado = campoNome.getText().trim();
-            String cpfCru = campoCpf.getText().trim();
+            String cpf = campoCpf.getText().trim(); // Mantém o CPF com formatação
             
-            
-            String cpf = cpfCru.replaceAll("[^0-9]", ""); 
+            // REMOÇÃO: A linha abaixo foi removida para usar o CPF bruto:
+            // String cpf = cpfCru.replaceAll("[^0-9]", ""); 
 
             if (nomeDigitado.isEmpty() || cpf.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Nome e CPF não podem ser vazios.", "Erro de Login",
@@ -102,7 +102,7 @@ public class TelaIndentificação extends JFrame {
 
             try {
                 
-                Pessoa usuario = pessoaDAO.buscarPorCpf(cpf);
+                Pessoa usuario = pessoaDAO.buscarPorCpf(cpf); // Passa o CPF bruto/formatado
 
                 if (usuario == null) {
                     JOptionPane.showMessageDialog(this, "Usuário não encontrado.", "Erro de Login",

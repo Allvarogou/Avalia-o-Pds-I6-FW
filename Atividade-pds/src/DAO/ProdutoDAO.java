@@ -26,6 +26,7 @@ public class ProdutoDAO {
 
         } catch (SQLException e) {
             System.err.println("Erro ao salvar produto: " + e.getMessage());
+            e.printStackTrace(); // Alteração: Adiciona o stack trace para depuração
             throw e; 
         }
     }
@@ -69,6 +70,7 @@ public class ProdutoDAO {
             pstm.executeUpdate();
             System.out.println("Produto editado com sucesso!");
         }
+        // Este método já propaga SQLException
     }
 
    
@@ -82,5 +84,6 @@ public class ProdutoDAO {
             pstm.executeUpdate();
             System.out.println("Produto removido com sucesso!");
         }
+        // Este método já propaga SQLException
     }
 }
