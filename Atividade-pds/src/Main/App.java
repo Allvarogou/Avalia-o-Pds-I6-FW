@@ -1,9 +1,9 @@
 package Main;
+
 import SMModel.Mercado;
-import TelasView.TelaIndentificação;
+import TelasView.TelaDeIdentificacao;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
-
 
 public class App {
 
@@ -13,8 +13,8 @@ public class App {
 
         SwingUtilities.invokeLater(() -> {
             try {
-                
-                new TelaIndentificação(mercado).setVisible(true); 
+
+                new TelaDeIdentificacao(mercado).setVisible(true);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Erro crítico na inicialização: " + e.getMessage(), "Erro",
                         JOptionPane.ERROR_MESSAGE);
