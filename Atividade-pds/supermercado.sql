@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS itens_carrinho (
 
 -- DADOS INICIAIS CORRIGIDOS
 INSERT INTO pessoas (nome, cpf, isAdm) VALUES
-('Admin Inicial', '00000000000', TRUE), -- CPF sem formatação
-('Cliente Teste', '11111111111', FALSE)
+('Admin', '00000000000', TRUE), -- CPF sem formatação
+('Cliente', '11111111111', FALSE)
 ON DUPLICATE KEY UPDATE nome=VALUES(nome);
 
 INSERT INTO produtos (nome, preco_venda, preco_compra, quantidade) VALUES

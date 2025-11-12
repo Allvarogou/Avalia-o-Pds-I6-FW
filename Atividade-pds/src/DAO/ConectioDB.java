@@ -8,7 +8,7 @@ public class ConectioDB {
 
     private static final String URL = "jdbc:mysql://localhost:3306/supermercado";
     private static final String USUARIO = "root";
-    private static final String SENHA = "admin";
+    private static final String SENHA = "aluno";
 
     public static Connection conectar() throws SQLException {
 

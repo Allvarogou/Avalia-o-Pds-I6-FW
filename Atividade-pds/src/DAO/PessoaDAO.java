@@ -44,7 +44,7 @@ public class PessoaDAO {
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
             // Log de depuração
-            System.out.println("Buscando CPF (bruto/formatado): " + cpf);
+            //System.out.println("Buscando CPF (bruto/formatado): " + cpf);
 
             pstm.setString(1, cpf); // Usa o CPF bruto (formatted)
 
