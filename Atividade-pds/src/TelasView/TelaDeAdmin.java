@@ -232,7 +232,7 @@ public class TelaDeAdmin extends JFrame {
 
     private void abrirCadastroUsuario() {
         this.dispose();
-        new TelaDeCadastroUsuario(this).setVisible(true);
+        new TelaDeGerenciamentoUsuarios(this).setVisible(true);
     }
 
     private void voltar() {

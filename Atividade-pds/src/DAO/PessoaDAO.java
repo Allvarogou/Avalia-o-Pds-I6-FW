@@ -6,8 +6,60 @@ import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class PessoaDAO {
+
+    public ArrayList<Pessoa> listarTodos() throws SQLException {
+        ArrayList<Pessoa> listaPessoas = new ArrayList<>();
+        // Query SQL para selecionar todos os registros
+        String sql = "SELECT nome, cpf, isAdm FROM pessoas";
+
+        try (Connection conn = ConectioDB.conectar();
+             PreparedStatement pstm = conn.prepareStatement(sql);
+             ResultSet rs = pstm.executeQuery()) {
+
+            // Itera sobre todos os resultados encontrados
+            while (rs.next()) {
+                Pessoa pessoa = new Pessoa();
+                pessoa.setNome(rs.getString("nome"));
+                pessoa.setCpf(rs.getString("cpf"));
+                pessoa.setAdm(rs.getBoolean("isAdm"));
+                
+                // Adiciona o objeto pessoa à lista
+                listaPessoas.add(pessoa);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar usuários: " + e.getMessage());
+            e.printStackTrace();
+            // Propaga a exceção para a camada anterior
+            throw e;
+        }
+
+        // Retorna a lista completa (pode estar vazia se não houver registros)
+        return listaPessoas;
+    }
+	public boolean excluir(String cpf) throws SQLException {
+      
+        String sql = "DELETE FROM pessoas WHERE cpf = ?";
+
+        try (Connection conn = ConectioDB.conectar();
+             PreparedStatement pstm = conn.prepareStatement(sql)) {
+
+            
+            pstm.setString(1, cpf);
+
+           
+            int linhasAfetadas = pstm.executeUpdate();
+
+            return linhasAfetadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao excluir usuário: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     public boolean salvar(Pessoa pessoa) throws SQLException {
 
