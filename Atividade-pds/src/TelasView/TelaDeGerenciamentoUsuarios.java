@@ -59,8 +59,11 @@ public class TelaDeGerenciamentoUsuarios extends JFrame {
 
         // Ação ao fechar a janela (pelo "X" ou "Voltar")
         addWindowListener(new WindowAdapter() {
+            // ---
+            // CORREÇÃO AQUI: Trocado de windowClosing para windowClosed
+            // ---
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void windowClosed(WindowEvent e) {
                 voltarParaTelaAnterior();
             }
         });
@@ -125,7 +128,7 @@ public class TelaDeGerenciamentoUsuarios extends JFrame {
 
         btnCadastrar.addActionListener(e -> abrirCadastro());
         btnExcluir.addActionListener(e -> excluirUsuario());
-        btnVoltar.addActionListener(e -> dispose()); // Dispara o windowClosing
+        btnVoltar.addActionListener(e -> dispose()); // Dispara o windowClosed
 
         painelBotoes.add(btnCadastrar);
         painelBotoes.add(btnExcluir);
@@ -180,7 +183,8 @@ public class TelaDeGerenciamentoUsuarios extends JFrame {
         if (confirmacao == JOptionPane.YES_OPTION) {
             try {
                 // Remove do banco de dados
-                pessoaDAO.excluir(cpf.replaceAll("[^0-9]", "")); // Garante CPF limpo
+                // O DAO deve esperar o CPF formatado
+                pessoaDAO.excluir(cpf); 
                 // Recarrega a tabela
                 carregarTabela(); 
             } catch (SQLException e) {
@@ -250,7 +254,7 @@ public class TelaDeGerenciamentoUsuarios extends JFrame {
          
         JButton btnFechar = new JButton("\u00D7");
         btnFechar.setFont(new Font("Segoe UI", Font.BOLD, 21));
-        btnFechar.addActionListener(e -> dispose()); // Chama o windowClosing
+        btnFechar.addActionListener(e -> dispose()); // Chama o windowClosed
         estilizarBotaoTitulo(btnFechar);
 
         applyButtonHoverEffect(btnMinimizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
