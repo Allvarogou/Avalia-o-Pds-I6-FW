@@ -57,7 +57,6 @@ public class TelaDeIdentificacao extends JFrame {
         // Ajusta o título para esta tela específica
         ((JLabel) ((JPanel) barraDeTitulo.getComponent(0)).getComponent(1)).setText("Identificação de Usuário");
 
-
         // 3. Painel de Conteúdo (Funcionalidade mantida, Estilo aplicado)
         JPanel painelConteudo = new JPanel();
         painelConteudo.setBackground(COR_FUNDO);
@@ -65,7 +64,7 @@ public class TelaDeIdentificacao extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         // Adiciona um padding geral ao painel de login
         painelConteudo.setBorder(new EmptyBorder(20, 40, 30, 40));
 
@@ -82,7 +81,7 @@ public class TelaDeIdentificacao extends JFrame {
 
         gbc.gridwidth = 1;
         gbc.weightx = 0.0; // Reset
-        
+
         // --- Campo Nome ---
         JLabel labelNome = new JLabel("Nome:");
         labelNome.setFont(FONTE_LABEL); // Estilo aplicado
@@ -112,7 +111,7 @@ public class TelaDeIdentificacao extends JFrame {
 
         // --- IMPLEMENTAÇÃO DA MÁSCARA DE CPF (Funcionalidade 100% mantida) ---
         ((PlainDocument) campoCpf.getDocument()).setDocumentFilter(new DocumentFilter() {
-            private final int MAX_CHARS = 14; 
+            private final int MAX_CHARS = 14;
 
             @Override
             public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
@@ -124,7 +123,7 @@ public class TelaDeIdentificacao extends JFrame {
                         - string.replaceAll("[^0-9]", "").length() >= MAX_CHARS)) {
                     return;
                 }
-                
+
                 // Correção para apagar e re-inserir
                 fb.remove(0, fb.getDocument().getLength());
                 fb.insertString(0, formatCPF(text), attr);
@@ -135,7 +134,8 @@ public class TelaDeIdentificacao extends JFrame {
                     throws BadLocationException {
                 String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
                 currentText = currentText.substring(0, offset) + currentText.substring(offset + length);
-                currentText = currentText.replaceAll("[^0-9]", "") + (text != null ? text.replaceAll("[^0-9]", "") : "");
+                currentText = currentText.replaceAll("[^0-9]", "")
+                        + (text != null ? text.replaceAll("[^0-9]", "") : "");
 
                 if (currentText.length() > 11) {
                     currentText = currentText.substring(0, 11);
@@ -145,8 +145,9 @@ public class TelaDeIdentificacao extends JFrame {
             }
 
             private String formatCPF(String digits) {
-                if (digits.isEmpty()) return "";
-                
+                if (digits.isEmpty())
+                    return "";
+
                 StringBuilder builder = new StringBuilder(digits);
                 if (builder.length() > 3)
                     builder.insert(3, '.');
@@ -172,7 +173,7 @@ public class TelaDeIdentificacao extends JFrame {
         botaoEntrar = new JButton("Entrar");
         styleButton(botaoEntrar); // Helper para aplicar estilo
         applyButtonHoverEffect(botaoEntrar, COR_SUCESSO, COR_DESTAQUE_IDLE); // Verde no hover
-        
+
         // --- Botão Cancelar ---
         botaoCancelar = new JButton("Cancelar");
         styleButton(botaoCancelar); // Helper para aplicar estilo
@@ -190,52 +191,51 @@ public class TelaDeIdentificacao extends JFrame {
         gbc.insets = new Insets(20, 10, 10, 10); // Mais espaço acima
         painelConteudo.add(painelBotoes, gbc);
 
-
         // --- Lógica de Ação do Botão Entrar (Funcionalidade 100% mantida) ---
         botaoEntrar.addActionListener(e -> {
             String nomeDigitado = campoNome.getText().trim();
             String cpfCru = campoCpf.getText().trim();
+
+            // Limpa para verificar tamanho
             String cpfLimpo = cpfCru.replaceAll("[^0-9]", "");
 
             if (nomeDigitado.isEmpty() || cpfLimpo.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Nome e CPF não podem ser vazios.", "Erro de Login",
+                JOptionPane.showMessageDialog(this, "Nome e CPF não podem ser vazios.", "Erro",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
-            // Validação simples de CPF (apenas contagem de dígitos)
+
             if (cpfLimpo.length() != 11) {
-                JOptionPane.showMessageDialog(this, "CPF inválido. Deve conter 11 dígitos.", "Erro de Login",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "CPF incompleto.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             try {
+                // AGORA VAI FUNCIONAR:
+                // O DAO agora espera apenas os números, então enviamos cpfLimpo
                 Pessoa usuario = pessoaDAO.buscarPorCpf(cpfLimpo);
 
                 if (usuario == null) {
-                    JOptionPane.showMessageDialog(this, "Usuário não encontrado.", "Erro de Login",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Usuário não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
+                // Verifica o nome ignorando maiúsculas/minúsculas
                 if (!usuario.getNome().equalsIgnoreCase(nomeDigitado)) {
-                    JOptionPane.showMessageDialog(this, "Nome incorreto para o CPF informado.", "Erro de Login",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Nome incorreto.", "Erro", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
+                // ... resto do código de login (abrir as telas) ...
                 this.dispose();
-
                 if (usuario.isAdm()) {
                     new TelaDeAdmin(mercado, this).setVisible(true);
                 } else {
-                    new TelaDeCompra(mercado, usuario.getNome(), usuario.getCpf(),
-                            this).setVisible(true);
+                    new TelaDeCompra(mercado, usuario.getNome(), usuario.getCpf(), this).setVisible(true);
                 }
+
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Erro de conexão com o Banco de Dados: " + ex.getMessage(),
-                        "Erro de Acesso", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Erro de Banco: " + ex.getMessage());
             }
         });
         // --- Fim Lógica de Ação do Botão Entrar ---
@@ -258,10 +258,10 @@ public class TelaDeIdentificacao extends JFrame {
                     initialClick = e.getPoint();
                 }
             }
-            
+
             @Override
             public void mouseDragged(MouseEvent e) {
-                 if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
+                if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                     int thisX = getLocation().x;
                     int thisY = getLocation().y;
                     int xMoved = thisX + (e.getX() - initialClick.x);
@@ -270,7 +270,7 @@ public class TelaDeIdentificacao extends JFrame {
                 }
             }
         };
-        
+
         // Permite arrastar pelo painel de conteúdo também
         painelConteudo.addMouseListener(draggableAdapter);
         painelConteudo.addMouseMotionListener(draggableAdapter);
@@ -285,8 +285,8 @@ public class TelaDeIdentificacao extends JFrame {
         field.setCaretColor(Color.WHITE);
         field.setFont(FONTE_CAMPO);
         field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COR_DESTAQUE_IDLE), // Borda externa
-            new EmptyBorder(5, 8, 5, 8) // Padding interno
+                BorderFactory.createLineBorder(COR_DESTAQUE_IDLE), // Borda externa
+                new EmptyBorder(5, 8, 5, 8) // Padding interno
         ));
     }
 
@@ -303,19 +303,18 @@ public class TelaDeIdentificacao extends JFrame {
         button.setBorder(new EmptyBorder(10, 10, 10, 10));
     }
 
-
     // --- Métodos de Suporte da Janela (Copiados de TelaAutenticacao) ---
 
     private void configurarJanela() {
         setUndecorated(true);
         // Tamanho ajustado para um formulário de login
-        setSize(500, 400); 
+        setSize(500, 400);
         setMinimumSize(new Dimension(450, 350));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(COR_FUNDO);
     }
-                 
+
     private JPanel criarBarraDeTituloCustomizada() {
         JPanel barraDeTitulo = new JPanel(new BorderLayout());
         barraDeTitulo.setBackground(COR_FUNDO);
@@ -327,9 +326,9 @@ public class TelaDeIdentificacao extends JFrame {
         FingerprintIconPanel iconPanel = new FingerprintIconPanel();
         iconPanel.setBorder(new EmptyBorder(2, 0, 0, 0));
         painelTituloIcone.add(iconPanel, BorderLayout.WEST);
-         
+
         // Título Padrão (pode ser alterado após a criação)
-        JLabel tituloLabel = new JLabel("Controle de Acesso"); 
+        JLabel tituloLabel = new JLabel("Controle de Acesso");
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         painelTituloIcone.add(tituloLabel, BorderLayout.CENTER);
@@ -346,7 +345,7 @@ public class TelaDeIdentificacao extends JFrame {
         btnMinimizar.setBorderPainted(false);
         btnMinimizar.setContentAreaFilled(false);
         btnMinimizar.addActionListener(e -> setState(JFrame.ICONIFIED));
-         
+
         btnMaximizar = new JButton("\u25A1");
         btnMaximizar.setForeground(Color.WHITE);
         btnMaximizar.setFont(new Font("Segoe UI Symbol", Font.BOLD, 14));
@@ -354,7 +353,7 @@ public class TelaDeIdentificacao extends JFrame {
         btnMaximizar.setBorderPainted(false);
         btnMaximizar.setContentAreaFilled(false);
         btnMaximizar.addActionListener(e -> toggleMaximize());
-         
+
         JButton btnFechar = new JButton("\u00D7");
         btnFechar.setForeground(Color.WHITE);
         btnFechar.setFont(new Font("Segoe UI", Font.BOLD, 21));
@@ -362,7 +361,7 @@ public class TelaDeIdentificacao extends JFrame {
         btnFechar.setBorderPainted(false);
         btnFechar.setContentAreaFilled(false);
         btnFechar.addActionListener(e -> System.exit(0)); // Alterado de dispose() para System.exit(0)
-         
+
         applyButtonHoverEffect(btnMinimizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnMaximizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnFechar, COR_ERRO, Color.WHITE); // Vermelho no hover do fechar
@@ -379,12 +378,14 @@ public class TelaDeIdentificacao extends JFrame {
                     initialClick = e.getPoint();
                 }
             }
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     toggleMaximize();
                 }
             }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
@@ -396,7 +397,7 @@ public class TelaDeIdentificacao extends JFrame {
                 }
             }
         };
-        
+
         barraDeTitulo.addMouseListener(titleBarAdapter);
         barraDeTitulo.addMouseMotionListener(titleBarAdapter);
         // Permite arrastar pelo título/ícone também
@@ -405,7 +406,6 @@ public class TelaDeIdentificacao extends JFrame {
         tituloLabel.addMouseListener(titleBarAdapter);
         tituloLabel.addMouseMotionListener(titleBarAdapter);
 
-
         this.addWindowStateListener((WindowStateListener) e -> {
             if ((e.getNewState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
                 btnMaximizar.setText("\u29C9");
@@ -413,10 +413,10 @@ public class TelaDeIdentificacao extends JFrame {
                 btnMaximizar.setText("\u25A1");
             }
         });
-         
+
         return barraDeTitulo;
     }
-     
+
     private void applyButtonHoverEffect(JButton button, Color hoverColor, Color defaultColor) {
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -430,7 +430,7 @@ public class TelaDeIdentificacao extends JFrame {
             }
         });
     }
-     
+
     private void toggleMaximize() {
         if (getExtendedState() == JFrame.MAXIMIZED_BOTH) {
             setExtendedState(JFrame.NORMAL);
@@ -442,7 +442,7 @@ public class TelaDeIdentificacao extends JFrame {
     // --- Inner Class para Ícone (Copiada de TelaAutenticacao) ---
     private static class FingerprintIconPanel extends JPanel {
         private static final long serialVersionUID = 1L;
-         
+
         public FingerprintIconPanel() {
             setOpaque(false);
             setPreferredSize(new Dimension(20, 20)); // tamanho
@@ -460,7 +460,7 @@ public class TelaDeIdentificacao extends JFrame {
 
             g2d.setColor(Color.WHITE); // cor
             g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-             
+
             for (int i = 0; i < 4; i++) { // tem menos arcos que o grande
                 int d = diametro - (i * (diametro / 4));
                 int arcX = x + (i * (diametro / 8));

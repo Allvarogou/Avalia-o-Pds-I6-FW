@@ -16,8 +16,8 @@ public class PessoaDAO {
         String sql = "SELECT nome, cpf, isAdm FROM pessoas";
 
         try (Connection conn = ConectioDB.conectar();
-             PreparedStatement pstm = conn.prepareStatement(sql);
-             ResultSet rs = pstm.executeQuery()) {
+                PreparedStatement pstm = conn.prepareStatement(sql);
+                ResultSet rs = pstm.executeQuery()) {
 
             // Itera sobre todos os resultados encontrados
             while (rs.next()) {
@@ -25,7 +25,7 @@ public class PessoaDAO {
                 pessoa.setNome(rs.getString("nome"));
                 pessoa.setCpf(rs.getString("cpf"));
                 pessoa.setAdm(rs.getBoolean("isAdm"));
-                
+
                 // Adiciona o objeto pessoa à lista
                 listaPessoas.add(pessoa);
             }
@@ -39,17 +39,16 @@ public class PessoaDAO {
         // Retorna a lista completa (pode estar vazia se não houver registros)
         return listaPessoas;
     }
-	public boolean excluir(String cpf) throws SQLException {
-      
+
+    public boolean excluir(String cpf) throws SQLException {
+
         String sql = "DELETE FROM pessoas WHERE cpf = ?";
 
         try (Connection conn = ConectioDB.conectar();
-             PreparedStatement pstm = conn.prepareStatement(sql)) {
+                PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-            
             pstm.setString(1, cpf);
 
-           
             int linhasAfetadas = pstm.executeUpdate();
 
             return linhasAfetadas > 0;
@@ -68,7 +67,8 @@ public class PessoaDAO {
         try (Connection conn = ConectioDB.conectar();
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-            // ALTERAÇÃO: O CPF não é mais limpo. É salvo com a formatação (ex: 100.000.000-00)
+            // ALTERAÇÃO: O CPF não é mais limpo. É salvo com a formatação (ex:
+            // 100.000.000-00)
             pstm.setString(1, pessoa.getNome());
             pstm.setString(2, pessoa.getCpf()); // Salva o CPF bruto
             pstm.setBoolean(3, pessoa.isAdm());
@@ -79,7 +79,7 @@ public class PessoaDAO {
         } catch (SQLException e) {
 
             System.err.println("Erro ao salvar usuário: " + e.getMessage());
-            e.printStackTrace(); 
+            e.printStackTrace();
             return false;
         }
 
@@ -87,22 +87,21 @@ public class PessoaDAO {
 
     public Pessoa buscarPorCpf(String cpf) throws SQLException {
         Pessoa pessoa = null;
-        // String cpfLimpo = cpf.replaceAll("[^0-9]", ""); // REMOVIDO: Não limpa o CPF
-        
-        // ALTERAÇÃO: A query agora pesquisa pelo CPF exatamente como o usuário digitou (com pontos/traços)
-        String sql = "SELECT nome, cpf, isAdm FROM pessoas WHERE cpf = ?";
 
-        try (Connection conn = ConectioDB.conectar(); 
+        // TRUQUE SQL: Removemos pontos (.) e traços (-) do banco antes de comparar
+        // Assim, tanto faz se está salvo formatado ou limpo, ele compara só os números.
+        String sql = "SELECT nome, cpf, isAdm FROM pessoas WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = ?";
+
+        try (Connection conn = ConectioDB.conectar();
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-            // Log de depuração
-            //System.out.println("Buscando CPF (bruto/formatado): " + cpf);
+            // Garantimos que o CPF que estamos enviando também tem apenas números
+            String cpfApenasNumeros = cpf.replaceAll("[^0-9]", "");
 
-            pstm.setString(1, cpf); // Usa o CPF bruto (formatted)
+            pstm.setString(1, cpfApenasNumeros);
 
             try (ResultSet rs = pstm.executeQuery()) {
                 if (rs.next()) {
-                  
                     pessoa = new Pessoa();
                     pessoa.setNome(rs.getString("nome"));
                     pessoa.setCpf(rs.getString("cpf"));
@@ -110,11 +109,32 @@ public class PessoaDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             throw e;
         }
-        
         return pessoa;
+    }
+
+    // Adicione este método na classe PessoaDAO
+    public boolean atualizar(Pessoa pessoa) throws SQLException {
+        // Atualiza nome e isAdm baseado no CPF (que não muda)
+        String sql = "UPDATE pessoas SET nome = ?, isAdm = ? WHERE cpf = ?";
+
+        try (Connection conn = ConectioDB.conectar();
+                PreparedStatement pstm = conn.prepareStatement(sql)) {
+
+            pstm.setString(1, pessoa.getNome());
+            pstm.setBoolean(2, pessoa.isAdm());
+            pstm.setString(3, pessoa.getCpf()); // Usa o CPF para achar quem atualizar
+
+            pstm.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar usuário: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

@@ -63,7 +63,8 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         // 2. Barra de Título Customizada (Estilo aplicado)
         JPanel barraDeTitulo = criarBarraDeTituloCustomizada();
         // --- CORREÇÃO APLICADA AQUI ---
-        // O painel do título (componente 0) agora só tem um filho (o label, componente 0)
+        // O painel do título (componente 0) agora só tem um filho (o label, componente
+        // 0)
         ((JLabel) ((JPanel) barraDeTitulo.getComponent(0)).getComponent(0)).setText("Gerenciamento de Produtos");
 
         // 3. Painel de Conteúdo (Funcionalidade mantida, Estilo aplicado)
@@ -160,11 +161,12 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         };
         tabelaProdutos = new JTable(tableModel);
         estilizarTabela(tabelaProdutos); // Aplicando estética
-        
+
         JScrollPane scrollPane = new JScrollPane(tabelaProdutos);
         estilizarScrollPane(scrollPane); // Aplicando estética
 
-        // Ação para carregar os campos ao selecionar uma linha (Funcionalidade 100% mantida)
+        // Ação para carregar os campos ao selecionar uma linha (Funcionalidade 100%
+        // mantida)
         tabelaProdutos.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tabelaProdutos.getSelectedRow() != -1) {
                 int linhaSelecionada = tabelaProdutos.getSelectedRow();
@@ -191,7 +193,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         styleButton(btnEditar);
         styleButton(btnRemover);
         styleButton(btnVoltar);
-        
+
         applyButtonHoverEffect(btnAdicionar, COR_SUCESSO, COR_DESTAQUE_IDLE); // Verde
         applyButtonHoverEffect(btnEditar, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE); // Azul
         applyButtonHoverEffect(btnRemover, COR_ERRO, COR_DESTAQUE_IDLE); // Vermelho
@@ -209,7 +211,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         painelBotoes.add(btnVoltar);
 
         painelConteudo.add(painelBotoes, BorderLayout.SOUTH);
-        
+
         return painelConteudo;
     }
 
@@ -238,7 +240,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         try {
             Produto novoProduto = criarProdutoDosCampos();
             produtoDAO.salvar(novoProduto);
-            
+
             JOptionPane.showMessageDialog(this, "Produto adicionado com sucesso!", "Sucesso",
                     JOptionPane.INFORMATION_MESSAGE);
             carregarTabelaProdutos();
@@ -307,7 +309,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
             }
         }
     }
-    
+
     private void voltar() {
         // Dispara o WindowListener (windowClosed)
         this.dispose();
@@ -339,7 +341,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Quantidade em estoque inválida.");
         }
-        
+
         return new Produto(nome, precoVenda, precoCompra, quantidade);
     }
 
@@ -350,7 +352,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         campoQuantidade.setText("");
         tabelaProdutos.clearSelection();
     }
-    
+
     // --- Métodos de Estilização (Helpers) ---
 
     private JLabel styleLabel(JLabel label) {
@@ -365,8 +367,8 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         field.setCaretColor(Color.WHITE);
         field.setFont(FONTE_CAMPO);
         field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COR_DESTAQUE_IDLE),
-            new EmptyBorder(5, 8, 5, 8) // Padding interno
+                BorderFactory.createLineBorder(COR_DESTAQUE_IDLE),
+                new EmptyBorder(5, 8, 5, 8) // Padding interno
         ));
     }
 
@@ -390,7 +392,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         scrollPane.getViewport().setBackground(COR_FUNDO_TABELA);
         scrollPane.setBorder(BorderFactory.createLineBorder(COR_DESTAQUE_IDLE));
     }
-    
+
     // --- Métodos de Suporte da Janela (Copiados) ---
 
     private void configurarJanela() {
@@ -402,7 +404,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         setLocationRelativeTo(null);
         getContentPane().setBackground(COR_FUNDO);
     }
-                 
+
     private JPanel criarBarraDeTituloCustomizada() {
         JPanel barraDeTitulo = new JPanel(new BorderLayout());
         barraDeTitulo.setBackground(COR_FUNDO);
@@ -411,8 +413,8 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         JPanel painelTituloIcone = new JPanel(new BorderLayout(10, 0));
         painelTituloIcone.setOpaque(false);
         // (Ícone da digital removido por não ser relevante para produtos)
-         
-        JLabel tituloLabel = new JLabel("Controle de Acesso"); 
+
+        JLabel tituloLabel = new JLabel("Controle de Acesso");
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         painelTituloIcone.add(tituloLabel, BorderLayout.CENTER);
@@ -425,17 +427,17 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         JButton btnMinimizar = new JButton("\u2014");
         estilizarBotaoTitulo(btnMinimizar);
         btnMinimizar.addActionListener(e -> setState(JFrame.ICONIFIED));
-         
+
         btnMaximizar = new JButton("\u25A1");
         estilizarBotaoTitulo(btnMaximizar);
         btnMaximizar.addActionListener(e -> toggleMaximize());
-         
+
         JButton btnFechar = new JButton("\u00D7");
         estilizarBotaoTitulo(btnFechar);
         btnFechar.setFont(new Font("Segoe UI", Font.BOLD, 21));
         // IMPORTANTE: Chama dispose() para ativar o WindowListener original
-        btnFechar.addActionListener(e -> dispose()); 
-         
+        btnFechar.addActionListener(e -> dispose());
+
         applyButtonHoverEffect(btnMinimizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnMaximizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnFechar, COR_ERRO, Color.WHITE); // Vermelho no hover
@@ -452,12 +454,14 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
                     initialClick = e.getPoint();
                 }
             }
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     toggleMaximize();
                 }
             }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
@@ -469,7 +473,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
                 }
             }
         };
-        
+
         barraDeTitulo.addMouseListener(titleBarAdapter);
         barraDeTitulo.addMouseMotionListener(titleBarAdapter);
         painelTituloIcone.addMouseListener(titleBarAdapter);
@@ -484,10 +488,10 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
                 btnMaximizar.setText("\u25A1");
             }
         });
-         
+
         return barraDeTitulo;
     }
-    
+
     private void estilizarBotaoTitulo(JButton button) {
         button.setForeground(Color.WHITE);
         button.setFont(new Font("Segoe UI Symbol", Font.BOLD, 14));
@@ -508,7 +512,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(new EmptyBorder(10, 10, 10, 10));
     }
-     
+
     private void applyButtonHoverEffect(JButton button, Color hoverColor, Color defaultColor) {
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -522,7 +526,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
             }
         });
     }
-     
+
     private void toggleMaximize() {
         if (getExtendedState() == JFrame.MAXIMIZED_BOTH) {
             setExtendedState(JFrame.NORMAL);
