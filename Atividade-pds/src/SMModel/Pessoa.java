@@ -5,17 +5,15 @@ public class Pessoa {
     private String cpf;
     private boolean isAdm;
 
-   
     public Pessoa(String nome, String cpf, boolean isAdm) {
         this.nome = nome;
         this.cpf = cpf;
         this.isAdm = isAdm;
     }
-    
+
     public Pessoa() {
     }
 
-   
     public String getNome() {
         return nome;
     }
@@ -39,4 +37,5 @@ public class Pessoa {
     public void setAdm(boolean isAdm) {
         this.isAdm = isAdm;
     }
+
 }

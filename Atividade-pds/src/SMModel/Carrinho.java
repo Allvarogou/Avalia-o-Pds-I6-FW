@@ -9,8 +9,21 @@ public class Carrinho {
         produtosCarrinho.add(produto);
     }
 
-    public void removerDoCarrinho(Produto produto) {
-        produtosCarrinho.remove(produto);
+    public void removerDoCarrinho(Produto produtoParaRemover) {
+        for (int i = 0; i < produtosCarrinho.size(); i++) {
+            Produto p = produtosCarrinho.get(i);
+            if (p.equals(produtoParaRemover)) {
+
+                int novaQuantidade = p.getQuantidade() - produtoParaRemover.getQuantidade();
+
+                if (novaQuantidade > 0) {
+                    p.setQuantidade(novaQuantidade); // Apenas diminui
+                } else {
+                    produtosCarrinho.remove(i); // Remove o item se a qtd zerar
+                }
+                return; // Sai do método após encontrar
+            }
+        }
     }
 
     public void listarProdutosCarrinho() {

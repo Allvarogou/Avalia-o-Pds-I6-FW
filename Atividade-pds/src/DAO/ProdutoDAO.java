@@ -15,10 +15,9 @@ public class ProdutoDAO {
         try (Connection conn = ConectioDB.conectar();
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
-            
             pstm.setString(1, produto.getProduto());
-            pstm.setFloat(2, produto.getPreco());
-            pstm.setFloat(3, produto.getPrecoCompra());
+            pstm.setDouble(2, produto.getPreco());
+            pstm.setDouble(3, produto.getPrecoCompra());
             pstm.setInt(4, produto.getQuantidade());
 
             pstm.executeUpdate();
@@ -27,7 +26,7 @@ public class ProdutoDAO {
         } catch (SQLException e) {
             System.err.println("Erro ao salvar produto: " + e.getMessage());
             e.printStackTrace(); // Alteração: Adiciona o stack trace para depuração
-            throw e; 
+            throw e;
         }
     }
 
@@ -50,11 +49,10 @@ public class ProdutoDAO {
 
                 listaDeProdutos.add(produto);
             }
-        } 
+        }
         return listaDeProdutos;
     }
 
-   
     public void editar(String nomeAntigo, Produto produtoNovo) throws SQLException {
         String sql = "UPDATE produtos SET nome = ?, preco_venda = ?, preco_compra = ?, quantidade = ? WHERE nome = ?";
 
@@ -62,8 +60,8 @@ public class ProdutoDAO {
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
             pstm.setString(1, produtoNovo.getProduto()); // Novo Nome
-            pstm.setFloat(2, produtoNovo.getPreco()); // Novo Preço Venda
-            pstm.setFloat(3, produtoNovo.getPrecoCompra()); // Novo Preço Compra
+            pstm.setDouble(2, produtoNovo.getPreco()); // Novo Preço Venda
+            pstm.setDouble(3, produtoNovo.getPrecoCompra()); // Novo Preço Compra
             pstm.setInt(4, produtoNovo.getQuantidade()); // Nova Quantidade
             pstm.setString(5, nomeAntigo); // Nome Antigo para a cláusula WHERE
 
@@ -73,17 +71,17 @@ public class ProdutoDAO {
         // Este método já propaga SQLException
     }
 
-   
-    public void remover(String nomeProduto) throws SQLException {
+    // Sugestão de melhoria para o ProdutoDAO (Opcional)
+    public boolean remover(String nomeProduto) throws SQLException {
         String sql = "DELETE FROM produtos WHERE nome = ?";
 
         try (Connection conn = ConectioDB.conectar();
                 PreparedStatement pstm = conn.prepareStatement(sql)) {
 
             pstm.setString(1, nomeProduto);
-            pstm.executeUpdate();
-            System.out.println("Produto removido com sucesso!");
+            int linhasAfetadas = pstm.executeUpdate(); // Retorna quantas linhas foram apagadas
+
+            return linhasAfetadas > 0; // Retorna true se apagou algo
         }
-        // Este método já propaga SQLException
     }
 }

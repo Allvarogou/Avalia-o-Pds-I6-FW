@@ -4,37 +4,42 @@ import SMModel.Mercado;
 import SMModel.Produto;
 import DAO.ProdutoDAO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-// Imports para a nova estética
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.border.EmptyBorder;
-
 /**
- * Tela para o administrador visualizar os produtos e navegar para telas de gerenciamento.
+ * Tela para o administrador visualizar os produtos e navegar para telas de
+ * gerenciamento.
  * Faz parte da camada VIEW.
- * (Versão reestilizada com o tema escuro)
+ * (Versão reestilizada com o tema escuro e corrigida)
  */
 public class TelaDeAdmin extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
     // --- Campos Funcionais Originais ---
+    // (O mercado não está sendo usado diretamente aqui, mas mantido caso precise
+    // repassar)
+    @SuppressWarnings("unused")
     private Mercado mercado;
     private ProdutoDAO produtoDAO = new ProdutoDAO();
     private JFrame telaAnterior;
 
-    // --- Componentes de Interface Originais ---
+    // --- Componentes de Interface ---
     private JTable tabelaProdutos;
     private DefaultTableModel tableModel;
+
+    // Botões
     private JButton btnCadastrarUsuario;
     private JButton btnGerenciarProdutos;
+    private JButton btnHistorico; // Novo botão de histórico
     private JButton btnVoltar;
 
     // --- Constantes de Estilo (Copiadas) ---
@@ -49,7 +54,7 @@ public class TelaDeAdmin extends JFrame {
     private static final Font FONTE_TABELA = new Font("Segoe UI", Font.PLAIN, 14);
     private static final Font FONTE_TABELA_HEADER = new Font("Segoe UI", Font.BOLD, 14);
 
-    // --- Variáveis para Janela Customizada (Copiadas) ---
+    // --- Variáveis para Janela Customizada ---
     private Point initialClick;
     private JButton btnMaximizar;
 
@@ -57,17 +62,17 @@ public class TelaDeAdmin extends JFrame {
     public TelaDeAdmin(Mercado mercado, JFrame telaAnterior) {
         this.mercado = mercado;
         this.telaAnterior = telaAnterior;
-        this.produtoDAO = new ProdutoDAO(); // Instancia o DAO
+        this.produtoDAO = new ProdutoDAO();
 
-        // 1. Configuração da Janela (Estilo aplicado)
+        // 1. Configuração da Janela
         configurarJanela();
 
-        // 2. Barra de Título Customizada (Estilo aplicado)
+        // 2. Barra de Título Customizada
         JPanel barraDeTitulo = criarBarraDeTituloCustomizada();
         // Ajusta o título para esta tela
-        ((JLabel) ((JPanel) barraDeTitulo.getComponent(0)).getComponent(1)).setText("Painel Administrativo");
+        ((JLabel) ((JPanel) barraDeTitulo.getComponent(0)).getComponent(0)).setText("Painel Administrativo");
 
-        // 3. Painel de Conteúdo (Funcionalidade mantida, Estilo aplicado)
+        // 3. Painel de Conteúdo
         JPanel painelConteudo = inicializarComponentes();
 
         // 4. Montagem final da Janela
@@ -75,7 +80,7 @@ public class TelaDeAdmin extends JFrame {
         getContentPane().add(barraDeTitulo, BorderLayout.NORTH);
         getContentPane().add(painelConteudo, BorderLayout.CENTER);
 
-        // 5. Adição do MouseListener para arrastar (Estilo aplicado)
+        // 5. Adição do MouseListener para arrastar
         MouseAdapter draggableAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -95,12 +100,11 @@ public class TelaDeAdmin extends JFrame {
                 }
             }
         };
-        
+
         painelConteudo.addMouseListener(draggableAdapter);
         painelConteudo.addMouseMotionListener(draggableAdapter);
 
-        // 6. Ação ao fechar a janela (Funcionalidade 100% mantida)
-        // Reabre a tela anterior (Identificação)
+        // 6. Ação ao fechar a janela
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -108,20 +112,18 @@ public class TelaDeAdmin extends JFrame {
             }
         });
 
-        // 7. Carregamento dos dados (Funcionalidade 100% mantida)
+        // 7. Carregamento dos dados
         carregarTabelaProdutos();
     }
 
     /**
-     * Modificado para retornar um JPanel e ser usado no construtor.
-     * Aplica a estética escura a todos os componentes.
+     * Inicializa e estiliza todos os componentes da tela.
      */
     private JPanel inicializarComponentes() {
         // Painel principal de conteúdo
         JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
         painelConteudo.setBackground(COR_FUNDO);
         painelConteudo.setBorder(new EmptyBorder(20, 30, 20, 30));
-
 
         // --- Tabela de Produtos (CENTRO) ---
         String[] colunas = { "Nome", "Preço Venda", "Preço Compra", "Quantidade" };
@@ -132,7 +134,7 @@ public class TelaDeAdmin extends JFrame {
             }
         };
         tabelaProdutos = new JTable(tableModel);
-        
+
         // Aplicando estilo à Tabela
         tabelaProdutos.setBackground(COR_FUNDO_TABELA);
         tabelaProdutos.setForeground(COR_LETRA_PRINCIPAL);
@@ -155,7 +157,6 @@ public class TelaDeAdmin extends JFrame {
         scrollPane.getViewport().setBackground(COR_FUNDO_TABELA);
         scrollPane.setBorder(BorderFactory.createLineBorder(COR_DESTAQUE_IDLE));
         scrollPane.getVerticalScrollBar().setBackground(COR_FUNDO);
-        // (Estilização da barra de rolagem requer mais código, mantendo simples por enquanto)
 
         // Painel central para Título da Tabela + Tabela
         JPanel painelCentral = new JPanel(new BorderLayout(0, 10));
@@ -164,46 +165,53 @@ public class TelaDeAdmin extends JFrame {
         JLabel labelTituloTabela = new JLabel("Estoque Atual:");
         labelTituloTabela.setFont(FONTE_LABEL);
         labelTituloTabela.setForeground(COR_LETRA_PRINCIPAL);
-        
+
         painelCentral.add(labelTituloTabela, BorderLayout.NORTH);
         painelCentral.add(scrollPane, BorderLayout.CENTER);
 
         painelConteudo.add(painelCentral, BorderLayout.CENTER);
 
-
         // --- Painel de Botões de Navegação (SUL) ---
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         painelBotoes.setOpaque(false); // Fundo transparente
 
-        btnGerenciarProdutos = new JButton("Gerenciar Produtos (CRUD)");
-        btnCadastrarUsuario = new JButton("Cadastrar Usuário");
+        // 1. INSTANCIAÇÃO DOS BOTÕES (Correção do NullPointer)
+        btnGerenciarProdutos = new JButton("Gerenciar Produtos");
+        btnHistorico = new JButton("Histórico de Vendas");
+        btnCadastrarUsuario = new JButton("Gerenciar Usuários"); // Nome ajustado para refletir a nova tela
         btnVoltar = new JButton("Voltar ao Login");
 
-        // Aplicando estilo e hover
+        // 2. ESTILIZAÇÃO
         styleButton(btnGerenciarProdutos);
+        styleButton(btnHistorico);
         styleButton(btnCadastrarUsuario);
         styleButton(btnVoltar);
-        
+
+        // 3. HOVER EFFECTS
         applyButtonHoverEffect(btnGerenciarProdutos, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE);
+        applyButtonHoverEffect(btnHistorico, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE);
         applyButtonHoverEffect(btnCadastrarUsuario, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE);
         applyButtonHoverEffect(btnVoltar, COR_ERRO, COR_DESTAQUE_IDLE); // Botão de sair/voltar em vermelho
 
-        // Adiciona ações aos botões (Funcionalidade 100% mantida)
+        // 4. LISTENERS (Ações)
         btnGerenciarProdutos.addActionListener(e -> abrirGerenciamentoProdutos());
+        btnHistorico.addActionListener(e -> abrirHistoricoVendas());
         btnCadastrarUsuario.addActionListener(e -> abrirCadastroUsuario());
         btnVoltar.addActionListener(e -> voltar());
 
+        // 5. ADICIONAR AO PAINEL
         painelBotoes.add(btnGerenciarProdutos);
+        painelBotoes.add(btnHistorico);
         painelBotoes.add(btnCadastrarUsuario);
         painelBotoes.add(btnVoltar);
 
         painelConteudo.add(painelBotoes, BorderLayout.SOUTH);
-        
+
         return painelConteudo;
     }
 
     // --- Métodos de Lógica (Interagindo com DAO) ---
-    // (Funcionalidade 100% mantida - Sem alteração)
+
     public void carregarTabelaProdutos() {
         tableModel.setRowCount(0);
         try {
@@ -224,14 +232,20 @@ public class TelaDeAdmin extends JFrame {
     }
 
     // --- Métodos de Navegação ---
-    // (Funcionalidade 100% mantida - Sem alteração)
+
     private void abrirGerenciamentoProdutos() {
         this.setVisible(false);
         new TelaDeGerenciamentoProdutos(this).setVisible(true);
     }
 
+    private void abrirHistoricoVendas() {
+        this.setVisible(false);
+        new TelaHistoricoVendas(this).setVisible(true);
+    }
+
     private void abrirCadastroUsuario() {
-        this.dispose();
+        this.setVisible(false);
+        // Agora chama a tela de gerenciamento de usuários, não o cadastro direto
         new TelaDeGerenciamentoUsuarios(this).setVisible(true);
     }
 
@@ -239,66 +253,51 @@ public class TelaDeAdmin extends JFrame {
         this.dispose();
         this.telaAnterior.setVisible(true);
     }
-    
-    // --- Métodos de Suporte da Janela (Copiados de TelaAutenticacao) ---
+
+    // --- Métodos de Suporte da Janela ---
 
     private void configurarJanela() {
         setUndecorated(true);
-        setSize(850, 600); // Tamanho original ajustado
-        setMinimumSize(new Dimension(600, 400));
+        setSize(900, 600);
+        setMinimumSize(new Dimension(800, 500));
         // IMPORTANTE: Mantém DISPOSE_ON_CLOSE para o WindowListener funcionar
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(COR_FUNDO);
     }
-                 
+
     private JPanel criarBarraDeTituloCustomizada() {
         JPanel barraDeTitulo = new JPanel(new BorderLayout());
         barraDeTitulo.setBackground(COR_FUNDO);
         barraDeTitulo.setBorder(new EmptyBorder(5, 10, 5, 5));
 
-        JPanel painelTituloIcone = new JPanel(new BorderLayout(10, 0));
-        painelTituloIcone.setOpaque(false);
+        JPanel painelTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        painelTitulo.setOpaque(false);
 
-        FingerprintIconPanel iconPanel = new FingerprintIconPanel();
-        iconPanel.setBorder(new EmptyBorder(2, 0, 0, 0));
-        painelTituloIcone.add(iconPanel, BorderLayout.WEST);
-         
-        JLabel tituloLabel = new JLabel("Controle de Acesso"); 
+        JLabel tituloLabel = new JLabel("Painel Administrativo");
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        painelTituloIcone.add(tituloLabel, BorderLayout.CENTER);
+        painelTitulo.add(tituloLabel);
 
-        barraDeTitulo.add(painelTituloIcone, BorderLayout.CENTER);
+        barraDeTitulo.add(painelTitulo, BorderLayout.WEST);
 
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         painelBotoes.setOpaque(false);
 
         JButton btnMinimizar = new JButton("\u2014");
-        btnMinimizar.setForeground(Color.WHITE);
-        btnMinimizar.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnMinimizar.setFocusPainted(false);
-        btnMinimizar.setBorderPainted(false);
-        btnMinimizar.setContentAreaFilled(false);
+        estilizarBotaoTitulo(btnMinimizar);
         btnMinimizar.addActionListener(e -> setState(JFrame.ICONIFIED));
-         
-        btnMaximizar = new JButton("\u25A1");
-        btnMaximizar.setForeground(Color.WHITE);
-        btnMaximizar.setFont(new Font("Segoe UI Symbol", Font.BOLD, 14));
-        btnMaximizar.setFocusPainted(false);
-        btnMaximizar.setBorderPainted(false);
-        btnMaximizar.setContentAreaFilled(false);
+
+        JButton btnMaximizar = new JButton("\u25A1");
+        estilizarBotaoTitulo(btnMaximizar);
         btnMaximizar.addActionListener(e -> toggleMaximize());
-         
+
         JButton btnFechar = new JButton("\u00D7");
-        btnFechar.setForeground(Color.WHITE);
+        estilizarBotaoTitulo(btnFechar);
         btnFechar.setFont(new Font("Segoe UI", Font.BOLD, 21));
-        btnFechar.setFocusPainted(false);
-        btnFechar.setBorderPainted(false);
-        btnFechar.setContentAreaFilled(false);
         // IMPORTANTE: Chama dispose() para ativar o WindowListener original
-        btnFechar.addActionListener(e -> dispose()); 
-         
+        btnFechar.addActionListener(e -> dispose());
+
         applyButtonHoverEffect(btnMinimizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnMaximizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnFechar, COR_ERRO, Color.WHITE); // Vermelho no hover
@@ -315,12 +314,14 @@ public class TelaDeAdmin extends JFrame {
                     initialClick = e.getPoint();
                 }
             }
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     toggleMaximize();
                 }
             }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
@@ -332,13 +333,11 @@ public class TelaDeAdmin extends JFrame {
                 }
             }
         };
-        
+
         barraDeTitulo.addMouseListener(titleBarAdapter);
         barraDeTitulo.addMouseMotionListener(titleBarAdapter);
-        painelTituloIcone.addMouseListener(titleBarAdapter);
-        painelTituloIcone.addMouseMotionListener(titleBarAdapter);
-        tituloLabel.addMouseListener(titleBarAdapter);
-        tituloLabel.addMouseMotionListener(titleBarAdapter);
+        painelTitulo.addMouseListener(titleBarAdapter);
+        painelTitulo.addMouseMotionListener(titleBarAdapter);
 
         this.addWindowStateListener(e -> {
             if ((e.getNewState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
@@ -347,8 +346,16 @@ public class TelaDeAdmin extends JFrame {
                 btnMaximizar.setText("\u25A1");
             }
         });
-         
+
         return barraDeTitulo;
+    }
+
+    private void estilizarBotaoTitulo(JButton button) {
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Segoe UI Symbol", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
     }
 
     /**
@@ -363,7 +370,7 @@ public class TelaDeAdmin extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(new EmptyBorder(10, 10, 10, 10));
     }
-     
+
     private void applyButtonHoverEffect(JButton button, Color hoverColor, Color defaultColor) {
         button.addMouseListener(new MouseAdapter() {
             @Override
@@ -377,44 +384,12 @@ public class TelaDeAdmin extends JFrame {
             }
         });
     }
-     
+
     private void toggleMaximize() {
         if (getExtendedState() == JFrame.MAXIMIZED_BOTH) {
             setExtendedState(JFrame.NORMAL);
         } else {
             setExtendedState(JFrame.MAXIMIZED_BOTH);
-        }
-    }
-
-    // --- Inner Class para Ícone (Copiada) ---
-    private static class FingerprintIconPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-         
-        public FingerprintIconPanel() {
-            setOpaque(false);
-            setPreferredSize(new Dimension(20, 20)); // tamanho
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int diametro = Math.min(getWidth(), getHeight()) - 4;
-            int x = (getWidth() - diametro) / 2;
-            int y = (getHeight() - diametro) / 2;
-
-            g2d.setColor(Color.WHITE); // cor
-            g2d.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-             
-            for (int i = 0; i < 4; i++) {
-                int d = diametro - (i * (diametro / 4));
-                int arcX = x + (i * (diametro / 8));
-                int arcY = y + (i * (diametro / 8));
-                g2d.drawArc(arcX, arcY, d, d, -45 - (i * 10), 270 + (i * 5));
-            }
-            g2d.dispose();
         }
     }
 }
