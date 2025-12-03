@@ -43,8 +43,8 @@ public class ProdutoDAO {
 
                 // Mapeamento: Coluna SQL -> Setter Java
                 produto.setProduto(rs.getString("nome"));
-                produto.setPreco(rs.getFloat("preco_venda"));
-                produto.setPrecoCompra(rs.getFloat("preco_compra"));
+                produto.setPreco(rs.getDouble("preco_venda"));
+                produto.setPrecoCompra(rs.getDouble("preco_compra"));
                 produto.setQuantidade(rs.getInt("quantidade"));
 
                 listaDeProdutos.add(produto);

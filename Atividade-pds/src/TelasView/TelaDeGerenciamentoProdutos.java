@@ -190,9 +190,9 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
             for (Produto produto : produtos) {
                 // Formatação do DOUBLE para R$ com 2 casas decimais
                 tableModel.addRow(new Object[] {
-                        produto.getProduto(),
-                        String.format("R$ %.2f", produto.getPreco()),
-                        String.format("R$ %.2f", produto.getPrecoCompra()),
+                    produto.getProduto(),
+                    String.format("R$ %.2f", Math.round(produto.getPreco() * 100.0) / 100.0),
+                    String.format("R$ %.2f", Math.round(produto.getPrecoCompra() * 100.0) / 100.0),
                         produto.getQuantidade()
                 });
             }
