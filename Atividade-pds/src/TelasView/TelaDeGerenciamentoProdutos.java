@@ -9,8 +9,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-// Imports para a nova estética
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
@@ -18,64 +16,55 @@ import javax.swing.border.EmptyBorder;
 /**
  * Tela dedicada para o administrador gerenciar (Adicionar, Editar, Remover)
  * os produtos do mercado.
- * (Versão reestilizada com o tema escuro)
+ * (Versão reestilizada com o tema escuro e correção de formatação DOUBLE)
  */
 public class TelaDeGerenciamentoProdutos extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    // --- Campos Funcionais Originais ---
     private ProdutoDAO produtoDAO = new ProdutoDAO();
     private JFrame telaAnterior;
 
-    // --- Componentes de Interface Originais ---
     private JTable tabelaProdutos;
     private DefaultTableModel tableModel;
+    // Campos agora aceitam valores double para preços
     private JTextField campoNome, campoPreco, campoPrecoCompra, campoQuantidade;
     private JButton btnAdicionar, btnEditar, btnRemover, btnVoltar;
 
-    // --- Constantes de Estilo (Copiadas) ---
+    // --- Constantes de Estilo ---
     private static final Color COR_FUNDO = new Color(30, 30, 30);
     private static final Color COR_FUNDO_TABELA = new Color(40, 40, 40);
     private static final Color COR_LETRA_PRINCIPAL = new Color(200, 200, 200);
     private static final Color COR_DESTAQUE_IDLE = new Color(100, 100, 100);
-    private static final Color COR_DESTAQUE_PROCESSANDO = new Color(0, 174, 239); // Azul
-    private static final Color COR_SUCESSO = new Color(0, 200, 83); // Verde
-    private static final Color COR_ERRO = new Color(213, 0, 0); // Vermelho
+    private static final Color COR_DESTAQUE_PROCESSANDO = new Color(0, 174, 239);
+    private static final Color COR_SUCESSO = new Color(60, 179, 113);
+    private static final Color COR_ERRO = new Color(213, 0, 0);
     private static final Font FONTE_LABEL = new Font("Segoe UI", Font.BOLD, 14);
     private static final Font FONTE_BOTAO = new Font("Segoe UI", Font.BOLD, 14);
     private static final Font FONTE_CAMPO = new Font("Segoe UI", Font.PLAIN, 14);
     private static final Font FONTE_TABELA = new Font("Segoe UI", Font.PLAIN, 14);
     private static final Font FONTE_TABELA_HEADER = new Font("Segoe UI", Font.BOLD, 14);
 
-    // --- Variáveis para Janela Customizada (Copiadas) ---
     private Point initialClick;
     private JButton btnMaximizar;
 
-    // Construtor: recebe a tela que a chamou (TelaDeAdmin)
+    // Construtor: removido o Mercado, usando apenas a tela anterior (para manter o
+    // DAO interno)
     public TelaDeGerenciamentoProdutos(JFrame telaAnterior) {
         this.telaAnterior = telaAnterior;
-        this.produtoDAO = new ProdutoDAO(); // Instancia o DAO
 
-        // 1. Configuração da Janela (Estilo aplicado)
         configurarJanela();
 
-        // 2. Barra de Título Customizada (Estilo aplicado)
         JPanel barraDeTitulo = criarBarraDeTituloCustomizada();
-        // --- CORREÇÃO APLICADA AQUI ---
-        // O painel do título (componente 0) agora só tem um filho (o label, componente
-        // 0)
         ((JLabel) ((JPanel) barraDeTitulo.getComponent(0)).getComponent(0)).setText("Gerenciamento de Produtos");
 
-        // 3. Painel de Conteúdo (Funcionalidade mantida, Estilo aplicado)
         JPanel painelConteudo = inicializarComponentes();
 
-        // 4. Montagem final da Janela
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(barraDeTitulo, BorderLayout.NORTH);
         getContentPane().add(painelConteudo, BorderLayout.CENTER);
 
-        // 5. Adição do MouseListener para arrastar (Estilo aplicado)
+        // Adição do MouseListener para arrastar
         MouseAdapter draggableAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -98,37 +87,28 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         painelConteudo.addMouseListener(draggableAdapter);
         painelConteudo.addMouseMotionListener(draggableAdapter);
 
-        // 6. Ação ao fechar a janela (Funcionalidade 100% mantida)
+        // Ação ao fechar a janela
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                // Ao fechar, garante que a lista na TelaDeAdmin está atualizada
-                if (telaAnterior instanceof TelaDeAdmin) {
-                    ((TelaDeAdmin) telaAnterior).carregarTabelaProdutos();
-                }
                 telaAnterior.setVisible(true);
             }
         });
 
-        // 7. Carregamento dos dados (Funcionalidade 100% mantida)
         carregarTabelaProdutos();
+        this.setVisible(true); // Chamado no construtor para exibir a tela
     }
 
-    /**
-     * Modificado para retornar um JPanel e aplicar a estética.
-     */
     private JPanel inicializarComponentes() {
-        // Painel de conteúdo principal
         JPanel painelConteudo = new JPanel(new BorderLayout(10, 10));
         painelConteudo.setBackground(COR_FUNDO);
-        painelConteudo.setBorder(new EmptyBorder(10, 20, 10, 20)); // Padding geral
+        painelConteudo.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         // --- Painel de Formulário (NORTE) ---
         JPanel painelFormulario = new JPanel(new GridLayout(2, 4, 10, 10));
-        painelFormulario.setOpaque(false); // Fundo transparente
-        painelFormulario.setBorder(new EmptyBorder(10, 0, 10, 0)); // Padding
+        painelFormulario.setOpaque(false);
+        painelFormulario.setBorder(new EmptyBorder(10, 0, 10, 0));
 
-        // Campos do formulário
         campoNome = new JTextField(10);
         styleTextField(campoNome);
         campoPreco = new JTextField(10);
@@ -138,7 +118,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         campoQuantidade = new JTextField(10);
         styleTextField(campoQuantidade);
 
-        // Adiciona Labels (estilizados) e Campos
         painelFormulario.add(styleLabel(new JLabel("Nome do Produto:")));
         painelFormulario.add(styleLabel(new JLabel("Preço de Venda:")));
         painelFormulario.add(styleLabel(new JLabel("Preço de Compra:")));
@@ -160,19 +139,28 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
             }
         };
         tabelaProdutos = new JTable(tableModel);
-        estilizarTabela(tabelaProdutos); // Aplicando estética
+        estilizarTabela(tabelaProdutos);
 
         JScrollPane scrollPane = new JScrollPane(tabelaProdutos);
-        estilizarScrollPane(scrollPane); // Aplicando estética
+        estilizarScrollPane(scrollPane);
 
-        // Ação para carregar os campos ao selecionar uma linha (Funcionalidade 100%
-        // mantida)
+        // Ação para carregar os campos ao selecionar uma linha
         tabelaProdutos.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tabelaProdutos.getSelectedRow() != -1) {
                 int linhaSelecionada = tabelaProdutos.getSelectedRow();
+                // Os valores do preçona tabela estão formatados (ex: "R$ 10.50").
+                // A remoção do "R$ " e a conversão do formato (ex: 10.50) é necessária aqui,
+                // mas para simplificar, usaremos apenas a string de preço crua da tabela
+                // que, no DB, é o valor não formatado. Como aqui estamos lendo o que o
+                // método 'carregarTabelaProdutos' INSERIU (o valor formatado),
+                // precisamos reverter a formatação.
+
+                String precoVendaStr = tableModel.getValueAt(linhaSelecionada, 1).toString().replace("R$ ", "");
+                String precoCompraStr = tableModel.getValueAt(linhaSelecionada, 2).toString().replace("R$ ", "");
+
                 campoNome.setText(tableModel.getValueAt(linhaSelecionada, 0).toString());
-                campoPreco.setText(tableModel.getValueAt(linhaSelecionada, 1).toString());
-                campoPrecoCompra.setText(tableModel.getValueAt(linhaSelecionada, 2).toString());
+                campoPreco.setText(precoVendaStr);
+                campoPrecoCompra.setText(precoCompraStr);
                 campoQuantidade.setText(tableModel.getValueAt(linhaSelecionada, 3).toString());
             }
         });
@@ -181,25 +169,23 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
 
         // --- Painel de Botões (SUL) ---
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-        painelBotoes.setOpaque(false); // Fundo transparente
+        painelBotoes.setOpaque(false);
 
         btnAdicionar = new JButton("Adicionar Novo");
         btnEditar = new JButton("Salvar Edição");
         btnRemover = new JButton("Remover Produto");
         btnVoltar = new JButton("Voltar");
 
-        // Aplicando Estilo e Hover
         styleButton(btnAdicionar);
         styleButton(btnEditar);
         styleButton(btnRemover);
         styleButton(btnVoltar);
 
-        applyButtonHoverEffect(btnAdicionar, COR_SUCESSO, COR_DESTAQUE_IDLE); // Verde
-        applyButtonHoverEffect(btnEditar, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE); // Azul
-        applyButtonHoverEffect(btnRemover, COR_ERRO, COR_DESTAQUE_IDLE); // Vermelho
-        applyButtonHoverEffect(btnVoltar, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE); // Azul
+        applyButtonHoverEffect(btnAdicionar, COR_SUCESSO, COR_DESTAQUE_IDLE);
+        applyButtonHoverEffect(btnEditar, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE);
+        applyButtonHoverEffect(btnRemover, COR_ERRO, COR_DESTAQUE_IDLE);
+        applyButtonHoverEffect(btnVoltar, COR_DESTAQUE_PROCESSANDO, COR_DESTAQUE_IDLE);
 
-        // Adiciona ações aos botões (Funcionalidade 100% mantida)
         btnAdicionar.addActionListener(e -> adicionarProduto());
         btnEditar.addActionListener(e -> editarProduto());
         btnRemover.addActionListener(e -> removerProduto());
@@ -216,17 +202,17 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
     }
 
     // --- Métodos de Lógica (Interagindo com DAO) ---
-    // (Funcionalidade 100% mantida - Sem alteração)
 
     public void carregarTabelaProdutos() {
         tableModel.setRowCount(0);
         try {
             ArrayList<Produto> produtos = produtoDAO.listarTodos();
             for (Produto produto : produtos) {
+                // CORREÇÃO ESSENCIAL: Formatação do DOUBLE para R$ com 2 casas decimais
                 tableModel.addRow(new Object[] {
                         produto.getProduto(),
-                        produto.getPreco(),
-                        produto.getPrecoCompra(),
+                        String.format("R$ %.2f", produto.getPreco()), // Corrigido para DOUBLE e formatado
+                        String.format("R$ %.2f", produto.getPrecoCompra()), // Corrigido para DOUBLE e formatado
                         produto.getQuantidade()
                 });
             }
@@ -311,7 +297,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
     }
 
     private void voltar() {
-        // Dispara o WindowListener (windowClosed)
         this.dispose();
     }
 
@@ -321,17 +306,20 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
             throw new IllegalArgumentException("O nome do produto é obrigatório.");
         }
 
-        float precoVenda, precoCompra;
+        // CORREÇÃO: Usando DOUBLE para preços e Double.parseDouble para conversão
+        double precoVenda, precoCompra;
         int quantidade;
 
         try {
-            precoVenda = Float.parseFloat(campoPreco.getText().trim().replace(",", "."));
+            // Substitui vírgula por ponto antes da conversão
+            precoVenda = Double.parseDouble(campoPreco.getText().trim().replace(",", "."));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Preço de venda inválido.");
         }
 
         try {
-            precoCompra = Float.parseFloat(campoPrecoCompra.getText().trim().replace(",", "."));
+            // Substitui vírgula por ponto antes da conversão
+            precoCompra = Double.parseDouble(campoPrecoCompra.getText().trim().replace(",", "."));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Preço de compra inválido.");
         }
@@ -368,8 +356,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         field.setFont(FONTE_CAMPO);
         field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(COR_DESTAQUE_IDLE),
-                new EmptyBorder(5, 8, 5, 8) // Padding interno
-        ));
+                new EmptyBorder(5, 8, 5, 8)));
     }
 
     private void estilizarTabela(JTable tabela) {
@@ -397,9 +384,8 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
 
     private void configurarJanela() {
         setUndecorated(true);
-        setSize(850, 600); // Aumentado para acomodar o formulário e a tabela
+        setSize(850, 600);
         setMinimumSize(new Dimension(700, 500));
-        // IMPORTANTE: Mantém DISPOSE_ON_CLOSE para o WindowListener funcionar
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(COR_FUNDO);
@@ -412,9 +398,8 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
 
         JPanel painelTituloIcone = new JPanel(new BorderLayout(10, 0));
         painelTituloIcone.setOpaque(false);
-        // (Ícone da digital removido por não ser relevante para produtos)
 
-        JLabel tituloLabel = new JLabel("Controle de Acesso");
+        JLabel tituloLabel = new JLabel("Gerenciamento de Produtos");
         tituloLabel.setForeground(Color.WHITE);
         tituloLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         painelTituloIcone.add(tituloLabel, BorderLayout.CENTER);
@@ -435,19 +420,17 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         JButton btnFechar = new JButton("\u00D7");
         estilizarBotaoTitulo(btnFechar);
         btnFechar.setFont(new Font("Segoe UI", Font.BOLD, 21));
-        // IMPORTANTE: Chama dispose() para ativar o WindowListener original
         btnFechar.addActionListener(e -> dispose());
 
         applyButtonHoverEffect(btnMinimizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
         applyButtonHoverEffect(btnMaximizar, COR_DESTAQUE_PROCESSANDO, Color.WHITE);
-        applyButtonHoverEffect(btnFechar, COR_ERRO, Color.WHITE); // Vermelho no hover
+        applyButtonHoverEffect(btnFechar, COR_ERRO, Color.WHITE);
 
         painelBotoes.add(btnMinimizar);
         painelBotoes.add(btnMaximizar);
         painelBotoes.add(btnFechar);
         barraDeTitulo.add(painelBotoes, BorderLayout.EAST);
 
-        // --- Listeners para arrastar e maximizar/restaurar ---
         MouseAdapter titleBarAdapter = new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (getExtendedState() != JFrame.MAXIMIZED_BOTH) {
@@ -500,9 +483,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         button.setContentAreaFilled(false);
     }
 
-    /**
-     * Aplica o estilo padrão "flat" da aplicação a um JButton.
-     */
     private void styleButton(JButton button) {
         button.setFont(FONTE_BOTAO);
         button.setForeground(COR_DESTAQUE_IDLE);
