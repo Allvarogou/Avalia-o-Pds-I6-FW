@@ -13,11 +13,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.EmptyBorder;
 
-/**
- * Tela dedicada para o administrador gerenciar (Adicionar, Editar, Remover)
- * os produtos do mercado.
- * (Versão reestilizada com o tema escuro e correção de formatação DOUBLE)
- */
 public class TelaDeGerenciamentoProdutos extends JFrame {
 
     private static final long serialVersionUID = 1L;
@@ -31,7 +26,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
     private JTextField campoNome, campoPreco, campoPrecoCompra, campoQuantidade;
     private JButton btnAdicionar, btnEditar, btnRemover, btnVoltar;
 
-    // --- Constantes de Estilo ---
     private static final Color COR_FUNDO = new Color(30, 30, 30);
     private static final Color COR_FUNDO_TABELA = new Color(40, 40, 40);
     private static final Color COR_LETRA_PRINCIPAL = new Color(200, 200, 200);
@@ -48,8 +42,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
     private Point initialClick;
     private JButton btnMaximizar;
 
-    // Construtor: removido o Mercado, usando apenas a tela anterior (para manter o
-    // DAO interno)
     public TelaDeGerenciamentoProdutos(JFrame telaAnterior) {
         this.telaAnterior = telaAnterior;
 
@@ -64,7 +56,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         getContentPane().add(barraDeTitulo, BorderLayout.NORTH);
         getContentPane().add(painelConteudo, BorderLayout.CENTER);
 
-        // Adição do MouseListener para arrastar
         MouseAdapter draggableAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -87,7 +78,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         painelConteudo.addMouseListener(draggableAdapter);
         painelConteudo.addMouseMotionListener(draggableAdapter);
 
-        // Ação ao fechar a janela
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
@@ -96,7 +86,7 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         });
 
         carregarTabelaProdutos();
-        this.setVisible(true); // Chamado no construtor para exibir a tela
+        this.setVisible(true);
     }
 
     private JPanel inicializarComponentes() {
@@ -144,16 +134,9 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         JScrollPane scrollPane = new JScrollPane(tabelaProdutos);
         estilizarScrollPane(scrollPane);
 
-        // Ação para carregar os campos ao selecionar uma linha
         tabelaProdutos.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && tabelaProdutos.getSelectedRow() != -1) {
                 int linhaSelecionada = tabelaProdutos.getSelectedRow();
-                // Os valores do preçona tabela estão formatados (ex: "R$ 10.50").
-                // A remoção do "R$ " e a conversão do formato (ex: 10.50) é necessária aqui,
-                // mas para simplificar, usaremos apenas a string de preço crua da tabela
-                // que, no DB, é o valor não formatado. Como aqui estamos lendo o que o
-                // método 'carregarTabelaProdutos' INSERIU (o valor formatado),
-                // precisamos reverter a formatação.
 
                 String precoVendaStr = tableModel.getValueAt(linhaSelecionada, 1).toString().replace("R$ ", "");
                 String precoCompraStr = tableModel.getValueAt(linhaSelecionada, 2).toString().replace("R$ ", "");
@@ -167,7 +150,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
 
         painelConteudo.add(scrollPane, BorderLayout.CENTER);
 
-        // --- Painel de Botões (SUL) ---
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         painelBotoes.setOpaque(false);
 
@@ -201,18 +183,16 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         return painelConteudo;
     }
 
-    // --- Métodos de Lógica (Interagindo com DAO) ---
-
     public void carregarTabelaProdutos() {
         tableModel.setRowCount(0);
         try {
             ArrayList<Produto> produtos = produtoDAO.listarTodos();
             for (Produto produto : produtos) {
-                // CORREÇÃO ESSENCIAL: Formatação do DOUBLE para R$ com 2 casas decimais
+                // Formatação do DOUBLE para R$ com 2 casas decimais
                 tableModel.addRow(new Object[] {
                         produto.getProduto(),
-                        String.format("R$ %.2f", produto.getPreco()), // Corrigido para DOUBLE e formatado
-                        String.format("R$ %.2f", produto.getPrecoCompra()), // Corrigido para DOUBLE e formatado
+                        String.format("R$ %.2f", produto.getPreco()),
+                        String.format("R$ %.2f", produto.getPrecoCompra()),
                         produto.getQuantidade()
                 });
             }
@@ -341,8 +321,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         tabelaProdutos.clearSelection();
     }
 
-    // --- Métodos de Estilização (Helpers) ---
-
     private JLabel styleLabel(JLabel label) {
         label.setFont(FONTE_LABEL);
         label.setForeground(COR_LETRA_PRINCIPAL);
@@ -379,8 +357,6 @@ public class TelaDeGerenciamentoProdutos extends JFrame {
         scrollPane.getViewport().setBackground(COR_FUNDO_TABELA);
         scrollPane.setBorder(BorderFactory.createLineBorder(COR_DESTAQUE_IDLE));
     }
-
-    // --- Métodos de Suporte da Janela (Copiados) ---
 
     private void configurarJanela() {
         setUndecorated(true);
